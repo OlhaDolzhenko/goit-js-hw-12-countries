@@ -13,7 +13,12 @@ refs.searchInput.addEventListener('input', debounce(onSearch, 500));
 function onSearch(e) {
   const searchQuery = e.target.value.trim();
 
-  API.fetchCountry(searchQuery).then(renderSearchResult).catch(onFetchError);
+  if (searchQuery) {
+    clearResults();
+    API.fetchCountry(searchQuery).then(renderSearchResult).catch(clearResults);
+  } else {
+    clearResults();
+  }
 }
 
 function renderSearchResult(countries) {
@@ -21,8 +26,10 @@ function renderSearchResult(countries) {
     renderSingleResult(countries[0]);
   } else if (countries.length > 10) {
     return onError();
-  } else {
+  } else if ((countries.length < 10) & (countries.length > 1)) {
     renderResultsList(countries);
+  } else {
+    refs.resultContainer.innerHTML = `☹️ No matches found. Please try a different search.🧐`;
   }
 }
 
@@ -36,6 +43,6 @@ function renderResultsList(countries) {
   return (refs.resultContainer.innerHTML = countriesListMarkup);
 }
 
-function onFetchError() {
+function clearResults() {
   refs.resultContainer.innerHTML = '';
 }
